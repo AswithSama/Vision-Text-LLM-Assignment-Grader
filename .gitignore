@@ -1,0 +1,55 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Environment variables
+# =========================
+.env
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Temporary files
+# =========================
+data/temporary/*
+!data/temporary/.gitkeep
+
+# Extracted submissions
+data/submissions/extracted/*
+!data/submissions/extracted/.gitkeep
+
+# Raw submissions (student uploads)
+data/submissions/raw/*
+!data/submissions/raw/.gitkeep
+
+# Generated grading results
+data/results/*
+!data/results/.gitkeep
+
+# =========================
+# Logs
+# =========================
+*.log
