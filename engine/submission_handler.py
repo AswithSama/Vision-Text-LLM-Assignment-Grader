@@ -3,46 +3,57 @@ import shutil
 import zipfile
 
 
-def extract_submission():
-    raw_dir = Path("data/submissions/raw")
-    extract_dir = Path("data/submissions/extracted")
+RAW_DIR = Path("data/submissions/raw")
+EXTRACT_DIR = Path("data/submissions/extracted")
 
-    # Make sure extracted exists
-    extract_dir.mkdir(parents=True, exist_ok=True)
 
-    # Find the single ZIP file
-    zip_path = next(raw_dir.glob("*.zip"))
+def get_zip_files():
+    return sorted(RAW_DIR.glob("*.zip"))
 
-    # Empty extracted folder
-    if extract_dir.exists():
-        shutil.rmtree(extract_dir)
 
-    extract_dir.mkdir(parents=True)
+def extract_submission(zip_path):
+    if EXTRACT_DIR.exists():
+        shutil.rmtree(EXTRACT_DIR)
 
-    # Extract ZIP
+    EXTRACT_DIR.mkdir(parents=True)
+
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extractall(extract_dir)
+        zip_ref.extractall(EXTRACT_DIR)
 
-    # Remove macOS metadata folder if present
-    macos_folder = extract_dir / "__MACOSX"
+    macos_folder = EXTRACT_DIR / "__MACOSX"
 
     if macos_folder.exists():
         shutil.rmtree(macos_folder)
 
-    # Flatten the extracted folder if needed
-    folders = [f for f in extract_dir.iterdir() if f.is_dir()]
+    for ds_store in EXTRACT_DIR.rglob(".DS_Store"):
+        ds_store.unlink(missing_ok=True)
 
-    if len(folders) == 1:
+    folders = [item for item in EXTRACT_DIR.iterdir() if item.is_dir()]
+    files = [item for item in EXTRACT_DIR.iterdir() if item.is_file()]
+
+    if len(folders) == 1 and not files:
         student_folder = folders[0]
 
         for item in student_folder.iterdir():
-            shutil.move(str(item), extract_dir)
+            shutil.move(
+                str(item),
+                str(EXTRACT_DIR / item.name),
+            )
 
         student_folder.rmdir()
 
-    # Return the extracted DOCX file
-    docx_file = next(extract_dir.glob("*.docx"))
+    docx_files = [
+        path
+        for path in EXTRACT_DIR.rglob("*.docx")
+        if not path.name.startswith("~$")
+    ]
 
-    print("Extraction completed successfully.")
+    if len(docx_files) != 1:
+        raise ValueError(
+            f"Expected exactly one DOCX file in {zip_path.name}, "
+            f"but found {len(docx_files)}."
+        )
 
-    return docx_file
+    print(f"Extraction completed for {zip_path.name}.")
+
+    return docx_files[0]

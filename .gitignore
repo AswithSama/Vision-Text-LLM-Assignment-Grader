@@ -53,3 +53,6 @@ data/results/*
 # Logs
 # =========================
 *.log
+
+#.ipynb
+*.ipynb
